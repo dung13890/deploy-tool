@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  application:
+    image: debian
+    volumes:
+      - ./:/go/src/github.com/dung13890/deploy-tool
+  tool:
+    image: dung13890/go-env
+    restart: on-failure
+    volumes_from:
+      - application
+    working_dir: /go/src/github.com/dung13890/deploy-tool
+    environment:
+      - GOBIN=/go/bin
+    tty: true
