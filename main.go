@@ -12,10 +12,12 @@ func main() {
 	cli.AppHelpTemplate = config.AppHelpTemplate
 	cli.CommandHelpTemplate = config.CommandHelpTemplate
 	ping := cmd.PingInit()
+	deploy := cmd.DeployInit()
 	app := cli.NewApp()
 	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		ping,
+		deploy,
 	}
 	err := app.Run(os.Args)
 	if err != nil {
