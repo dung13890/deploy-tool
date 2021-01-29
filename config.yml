@@ -1,5 +1,5 @@
 server:
-  address: "127.0.0.1"
+  address: "3.234.143.13"
   user: "ec2-user"
   port: 22
   dir: "/var/www/project"
