@@ -3,6 +3,7 @@ package remote
 import (
 	"fmt"
 	"golang.org/x/crypto/ssh"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,6 +18,10 @@ type Server struct {
 	dir        string
 	conn       *ssh.Client
 	connOpened bool
+	stdin      io.WriteCloser
+	stdout     io.Reader
+	stderr     io.Reader
+	debug      bool
 }
 
 func (s *Server) Load(address string, user string, port int, dir string) {
@@ -24,6 +29,10 @@ func (s *Server) Load(address string, user string, port int, dir string) {
 	s.user = user
 	s.port = port
 	s.dir = dir
+}
+
+func (s *Server) SetDebug(debug bool) {
+	s.debug = debug
 }
 
 func (s *Server) Connect(privateKey string) error {
@@ -56,6 +65,44 @@ func (s *Server) Connect(privateKey string) error {
 		return err
 	}
 	s.connOpened = true
+
+	return nil
+}
+
+func (s *Server) Run(cmd string) error {
+	sess, err := s.conn.NewSession()
+	defer sess.Close()
+	if err != nil {
+		return err
+	}
+
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	if err = sess.RequestPty("vt220", 80, 40, modes); err != nil {
+		return err
+	}
+
+	if s.stdout, err = sess.StdoutPipe(); err != nil {
+		return err
+	}
+
+	if s.stderr, err = sess.StderrPipe(); err != nil {
+		return err
+	}
+
+	if err = sess.Run(cmd); err != nil {
+		return err
+	}
+	if s.debug {
+
+		buf := [65 * 1024]byte{}
+		n, _ := s.stdout.Read(buf[:])
+		fmt.Printf("[%s] %s", cmd, string(buf[:n]))
+	}
 
 	return nil
 }
