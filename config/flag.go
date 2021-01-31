@@ -17,3 +17,9 @@ var Identity = &cli.StringFlag{
 	Value:   "~/.ssh/id_rsa",
 	Usage:   "Identity (private key) for RSA or DSA authentication",
 }
+
+var EnableLog = &cli.BoolFlag{
+	Name:    "log",
+	Aliases: []string{"l"},
+	Usage:   "Enable log detail",
+}
