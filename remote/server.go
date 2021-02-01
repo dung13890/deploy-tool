@@ -24,11 +24,12 @@ type Server struct {
 	debug      bool
 }
 
-func (s *Server) Load(address string, user string, port int, dir string) {
+func (s *Server) Load(address string, user string, port int, dir string, debug bool) {
 	s.address = address
 	s.user = user
 	s.port = port
 	s.dir = dir
+	s.debug = debug
 }
 
 func (s *Server) SetDebug(debug bool) {
@@ -98,10 +99,9 @@ func (s *Server) Run(cmd string) error {
 		return err
 	}
 	if s.debug {
-
 		buf := [65 * 1024]byte{}
 		n, _ := s.stdout.Read(buf[:])
-		fmt.Printf("[%s] %s", cmd, string(buf[:n]))
+		fmt.Printf("\n[%s] %s", cmd, string(buf[:n]))
 	}
 
 	return nil
