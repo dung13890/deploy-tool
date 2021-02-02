@@ -1,9 +1,15 @@
 package remote
 
+import (
+	"io"
+)
+
 type Remote interface {
+	Load(address string, user string, port int, dir string)
+	Dir() string
 	Connect(pathKey string) error
-	Close() error
-	Load(address string, user string, port int, dir string, debug bool)
-	SetDebug(debug bool)
 	Run(cmd string) error
+	Stdout() io.Reader
+	StdErr() io.Reader
+	Close() error
 }

@@ -1,4 +1,4 @@
-package cmd
+package deploy
 
 import (
 	"github.com/urfave/cli/v2"

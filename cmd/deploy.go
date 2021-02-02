@@ -3,14 +3,27 @@ package cmd
 import (
 	"fmt"
 	"github.com/briandowns/spinner"
-	"github.com/dung13890/deploy-tool/cmd/deploy"
+	cmdDep "github.com/dung13890/deploy-tool/cmd/deploy"
 	"github.com/dung13890/deploy-tool/config"
 	"github.com/dung13890/deploy-tool/remote"
+	"github.com/dung13890/deploy-tool/utils"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	"io"
 	"log"
+	"os"
+	"sync"
 	"time"
 )
+
+var mfuncs = map[string]interface{}{
+	"deploy:prepare": cmdDep.Prepare,
+	"deploy:install": cmdDep.Prepare,
+	"deploy:shared":  cmdDep.Prepare,
+	"deploy:vendors": cmdDep.Prepare,
+	"deploy:migrate": cmdDep.Prepare,
+	"deploy:release": cmdDep.Prepare,
+}
 
 type deploy struct {
 	config     config.Configuration
@@ -27,8 +40,8 @@ func DeployInit() *cli.Command {
 			config.Load,
 			config.Identity,
 			config.EnableLog,
-			cmd.Tag,
-			cmd.Branch,
+			cmdDep.Tag,
+			cmdDep.Branch,
 		},
 		Action: func(ctx *cli.Context) error {
 			d := &deploy{}
@@ -52,7 +65,6 @@ func (d *deploy) exec() error {
 		d.config.Server.User,
 		d.config.Server.Port,
 		d.config.Server.Dir,
-		d.log,
 	)
 	fmt.Printf("[%s] Executing task deploy:\n", d.config.Server.Address)
 	if err := r.Connect(d.privateKey); err != nil {
@@ -71,15 +83,43 @@ func (d *deploy) exec() error {
 	return nil
 }
 
-func (d *deploy) commands(remote remote.Remote, cmd string) error {
+func (d *deploy) commands(r remote.Remote, cmd string) error {
 	green := color.New(color.FgHiGreen, color.Bold).SprintFunc()
 	sp := spinner.New(spinner.CharSets[50], 100*time.Millisecond)
 	sp.Suffix = fmt.Sprintf(" [%s]:	Processing...", cmd)
 	sp.Color("fgHiGreen")
 	sp.FinalMSG = fmt.Sprintf("%s [%s]:	Completed!\n", green("✔"), cmd)
 	sp.Start()
-	remote.Run("uname -a")
+	utils.Call(mfuncs, cmd, r)
+	if d.log {
+		d.printLog(r)
+	}
 	sp.Stop()
+
+	return nil
+}
+
+func (d *deploy) printLog(r remote.Remote) error {
+	wg := sync.WaitGroup{}
+	// Copy over tasks's STDOUT.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, err := io.Copy(os.Stdout, r.Stdout())
+		if err != nil && err != io.EOF {
+			log.Fatal(err)
+		}
+	}()
+	// Copy over tasks's STDERR.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, err := io.Copy(os.Stderr, r.StdErr())
+		if err != nil && err != io.EOF {
+			log.Fatal(err)
+		}
+	}()
+	wg.Wait()
 
 	return nil
 }

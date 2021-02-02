@@ -7,7 +7,10 @@ import (
 	"github.com/dung13890/deploy-tool/remote"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	"io"
 	"log"
+	"os"
+	"sync"
 	"time"
 )
 
@@ -49,7 +52,6 @@ func (p *ping) exec() error {
 		p.config.Server.User,
 		p.config.Server.Port,
 		p.config.Server.Dir,
-		p.log,
 	)
 	fmt.Println("Testing connection into servers:")
 	green := color.New(color.FgHiGreen).SprintFunc()
@@ -63,8 +65,35 @@ func (p *ping) exec() error {
 		log.Fatalf("Error: %s", err)
 		return nil
 	}
-	r.Run("uname -a")
+	p.command(r)
 	sp.Stop()
 
+	return nil
+}
+
+func (p *ping) command(r remote.Remote) error {
+	r.Run("uname -a")
+	if p.log {
+		wg := sync.WaitGroup{}
+		// Copy over tasks's STDOUT.
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := io.Copy(os.Stdout, r.Stdout())
+			if err != nil && err != io.EOF {
+				log.Fatal(err)
+			}
+		}()
+		// Copy over tasks's STDERR.
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := io.Copy(os.Stderr, r.StdErr())
+			if err != nil && err != io.EOF {
+				log.Fatal(err)
+			}
+		}()
+		wg.Wait()
+	}
 	return nil
 }
