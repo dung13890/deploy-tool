@@ -21,19 +21,17 @@ type Server struct {
 	stdin      io.WriteCloser
 	stdout     io.Reader
 	stderr     io.Reader
-	debug      bool
 }
 
-func (s *Server) Load(address string, user string, port int, dir string, debug bool) {
+func (s *Server) Load(address string, user string, port int, dir string) {
 	s.address = address
 	s.user = user
 	s.port = port
 	s.dir = dir
-	s.debug = debug
 }
 
-func (s *Server) SetDebug(debug bool) {
-	s.debug = debug
+func (s *Server) Dir() string {
+	return fmt.Sprintf("/data/sites/%s", s.dir)
 }
 
 func (s *Server) Connect(privateKey string) error {
@@ -98,13 +96,16 @@ func (s *Server) Run(cmd string) error {
 	if err = sess.Run(cmd); err != nil {
 		return err
 	}
-	if s.debug {
-		buf := [65 * 1024]byte{}
-		n, _ := s.stdout.Read(buf[:])
-		fmt.Printf("\n[%s] %s", cmd, string(buf[:n]))
-	}
 
 	return nil
+}
+
+func (s *Server) Stdout() io.Reader {
+	return s.stdout
+}
+
+func (s *Server) StdErr() io.Reader {
+	return s.stderr
 }
 
 func (s *Server) Close() error {
