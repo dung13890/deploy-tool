@@ -34,6 +34,10 @@ func (s *Server) Dir() string {
 	return fmt.Sprintf("/data/sites/%s", s.dir)
 }
 
+func (s *Server) Prefix() string {
+	return fmt.Sprintf("[%s@%s]", s.user, s.address)
+}
+
 func (s *Server) Connect(privateKey string) error {
 	if s.connOpened {
 		log.Fatal("Warning: Client already connected")
@@ -85,6 +89,10 @@ func (s *Server) Run(cmd string) error {
 		return err
 	}
 
+	if s.stdin, err = sess.StdinPipe(); err != nil {
+		return err
+	}
+
 	if s.stdout, err = sess.StdoutPipe(); err != nil {
 		return err
 	}
@@ -98,6 +106,10 @@ func (s *Server) Run(cmd string) error {
 	}
 
 	return nil
+}
+
+func (s *Server) Stdin() io.WriteCloser {
+	return s.stdin
 }
 
 func (s *Server) Stdout() io.Reader {
