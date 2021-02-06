@@ -16,7 +16,6 @@ import (
 
 var mfuncs = map[string]interface{}{
 	"deploy:prepare": cmdDep.Prepare,
-	"deploy:install": cmdDep.Prepare,
 	"deploy:shared":  cmdDep.Prepare,
 	"deploy:vendors": cmdDep.Prepare,
 	"deploy:migrate": cmdDep.Prepare,
@@ -48,6 +47,7 @@ func DeployInit() *cli.Command {
 				log.Fatal(err)
 			}
 			d.log = ctx.Bool("log")
+			d.loadRepo(ctx.String("tag"), ctx.String("branch"))
 			d.privateKey = ctx.String("identity")
 			d.exec()
 			return nil
@@ -70,11 +70,11 @@ func (d *deploy) exec() error {
 	}
 	t := task.New(r, d.log)
 	d.commands(t, "deploy:prepare")
-	d.commands(t, "deploy:install")
-	d.commands(t, "deploy:shared")
-	d.commands(t, "deploy:vendors")
-	d.commands(t, "deploy:migrate")
-	d.commands(t, "deploy:release")
+	d.commands(t, "deploy:fetch")
+	// d.commands(t, "deploy:shared")
+	// d.commands(t, "deploy:vendors")
+	// d.commands(t, "deploy:migrate")
+	// d.commands(t, "deploy:release")
 	success := color.New(color.FgHiGreen, color.Bold).PrintlnFunc()
 	success("Successfully deployed!")
 
@@ -88,11 +88,29 @@ func (d *deploy) commands(t *task.Task, cmds string) error {
 	sp.Color("fgHiGreen")
 	sp.FinalMSG = fmt.Sprintf("%s [%s]:	Completed!\n", green("✔"), cmds)
 	sp.Start()
-	_, err := utils.Call(mfuncs, cmds, t)
-	if err != nil {
-		log.Fatal(err)
+	out, _ := utils.Call(mfuncs, cmds, t)
+	if !out[0].IsNil() {
+		log.Fatalf("Error: %v", out[0].Interface())
 	}
 	sp.Stop()
 
 	return nil
+}
+
+func (d *deploy) loadRepo(tag string, branch string) *cmdDep.Repo {
+	t := d.config.Repository.Tag
+	if tag != "" {
+		t = tag
+	}
+
+	b := d.config.Repository.Branch
+	if branch != "" {
+		b = branch
+	}
+
+	repo := cmdDep.NewRepo(d.config.Repository.Url, b, t)
+
+	mfuncs["deploy:fetch"] = repo.Fetch
+
+	return repo
 }

@@ -7,7 +7,8 @@ import (
 )
 
 type Configuration struct {
-	Server Host `yaml:server`
+	Server     Host `yaml:server`
+	Repository Repo `yaml:repository`
 }
 
 type Host struct {
@@ -15,6 +16,12 @@ type Host struct {
 	User    string `yaml:"user"`
 	Port    int    `yaml:"port"`
 	Dir     string `yaml:"dir"`
+}
+
+type Repo struct {
+	Url    string `yaml:"url"`
+	Branch string `yaml:"branch"`
+	Tag    string `yaml:"tag"`
 }
 
 func (c *Configuration) ReadFile(path string) error {
