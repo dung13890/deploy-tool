@@ -108,6 +108,31 @@ func (s *Server) Run(cmd string) error {
 	return nil
 }
 
+func (s *Server) CombinedOutput(cmd string) (out []byte, err error) {
+	sess, err := s.conn.NewSession()
+	defer sess.Close()
+	if err != nil {
+		return
+	}
+
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	if err = sess.RequestPty("vt220", 80, 40, modes); err != nil {
+		return
+	}
+
+	if s.stderr, err = sess.StderrPipe(); err != nil {
+		return
+	}
+
+	out, err = sess.CombinedOutput(cmd)
+	return
+}
+
 func (s *Server) Stdin() io.WriteCloser {
 	return s.stdin
 }

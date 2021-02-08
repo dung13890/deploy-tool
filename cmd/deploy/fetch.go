@@ -28,12 +28,7 @@ func (r *Repo) Fetch(t *task.Task) (err error) {
 	if err != nil {
 		return
 	}
-
-	err = t.Run(cmd)
-	if err != nil {
-		return
-	}
-	return nil
+	return t.Run(cmd)
 }
 
 func (r *Repo) makeCmd(path string) (cmd string, err error) {

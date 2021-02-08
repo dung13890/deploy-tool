@@ -26,6 +26,7 @@ type deploy struct {
 	config     config.Configuration
 	privateKey string
 	log        bool
+	repo       *cmdDep.Repo
 }
 
 func DeployInit() *cli.Command {
@@ -108,9 +109,9 @@ func (d *deploy) loadRepo(tag string, branch string) *cmdDep.Repo {
 		b = branch
 	}
 
-	repo := cmdDep.NewRepo(d.config.Repository.Url, b, t)
+	d.repo = cmdDep.NewRepo(d.config.Repository.Url, b, t)
 
-	mfuncs["deploy:fetch"] = repo.Fetch
+	mfuncs["deploy:fetch"] = d.repo.Fetch
 
-	return repo
+	return d.repo
 }
