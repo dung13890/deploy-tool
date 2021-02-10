@@ -14,19 +14,14 @@ import (
 	"time"
 )
 
-var mfuncs = map[string]interface{}{
-	"deploy:prepare": cmdDep.Prepare,
-	"deploy:shared":  cmdDep.Prepare,
-	"deploy:vendors": cmdDep.Prepare,
-	"deploy:migrate": cmdDep.Prepare,
-	"deploy:release": cmdDep.Prepare,
-}
-
 type deploy struct {
+	mfuncs     map[string]interface{}
 	config     config.Configuration
 	privateKey string
 	log        bool
 	repo       *cmdDep.Repo
+	shared     *cmdDep.Shared
+	tasks      *cmdDep.Tasks
 }
 
 func DeployInit() *cli.Command {
@@ -49,14 +44,25 @@ func DeployInit() *cli.Command {
 			}
 			d.log = ctx.Bool("log")
 			d.loadRepo(ctx.String("tag"), ctx.String("branch"))
+			d.loadShared()
+			d.loadTasks()
 			d.privateKey = ctx.String("identity")
 			d.exec()
+
 			return nil
 		},
 	}
 }
 
 func (d *deploy) exec() error {
+	// Init mfuncs
+	d.mfuncs = map[string]interface{}{
+		"deploy:prepare": cmdDep.Prepare,
+		"deploy:fetch":   d.repo.Fetch,
+		"deploy:shared":  d.shared.Setup,
+		"deploy:tasks":   d.tasks.Run,
+	}
+
 	var r remote.Remote = &remote.Server{}
 	defer r.Close()
 	r.Load(
@@ -70,12 +76,12 @@ func (d *deploy) exec() error {
 		log.Fatalf("Error: %s", err)
 	}
 	t := task.New(r, d.log)
+	// Run Commands for deploy
 	d.commands(t, "deploy:prepare")
 	d.commands(t, "deploy:fetch")
-	// d.commands(t, "deploy:shared")
-	// d.commands(t, "deploy:vendors")
-	// d.commands(t, "deploy:migrate")
-	// d.commands(t, "deploy:release")
+	d.commands(t, "deploy:shared")
+	d.commands(t, "deploy:tasks")
+
 	success := color.New(color.FgHiGreen, color.Bold).PrintlnFunc()
 	success("Successfully deployed!")
 
@@ -89,7 +95,7 @@ func (d *deploy) commands(t *task.Task, cmds string) error {
 	sp.Color("fgHiGreen")
 	sp.FinalMSG = fmt.Sprintf("%s [%s]:	Completed!\n", green("✔"), cmds)
 	sp.Start()
-	out, _ := utils.Call(mfuncs, cmds, t)
+	out, _ := utils.Call(d.mfuncs, cmds, t)
 	if !out[0].IsNil() {
 		log.Fatalf("Error: %v", out[0].Interface())
 	}
@@ -111,7 +117,17 @@ func (d *deploy) loadRepo(tag string, branch string) *cmdDep.Repo {
 
 	d.repo = cmdDep.NewRepo(d.config.Repository.Url, b, t)
 
-	mfuncs["deploy:fetch"] = d.repo.Fetch
-
 	return d.repo
+}
+
+func (d *deploy) loadShared() *cmdDep.Shared {
+	d.shared = cmdDep.NewShared(d.config.Shared.Folders, d.config.Shared.Files)
+
+	return d.shared
+}
+
+func (d *deploy) loadTasks() *cmdDep.Tasks {
+	d.tasks = cmdDep.NewTasks(d.config.Tasks)
+
+	return d.tasks
 }

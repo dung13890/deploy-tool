@@ -18,3 +18,16 @@ func Call(m map[string]interface{}, name string, params ...interface{}) (rs []re
 	rs = f.Call(in)
 	return
 }
+
+func UniqueArr(s []string) (rs []string) {
+	m := map[string]bool{}
+	for _, item := range s {
+		if _, ok := m[item]; !ok {
+			m[item] = true
+		}
+	}
+	for item, _ := range m {
+		rs = append(rs, item)
+	}
+	return
+}

@@ -74,5 +74,9 @@ func (t *Task) CombinedOutput(cmd string) (out string, err error) {
 		return
 	}
 
+	if t.debug {
+		t.printLog()
+	}
+
 	return
 }

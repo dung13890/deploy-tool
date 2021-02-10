@@ -15,12 +15,6 @@ func Prepare(t *task.Task) error {
 		return err
 	}
 
-	// Create metadata .dep dir.
-	cmd = fmt.Sprintf("cd %s && if [ ! -d .dep ]; then mkdir .dep; fi", path)
-	if err := t.Run(cmd); err != nil {
-		return err
-	}
-
 	// Create releases dir.
 	cmd = fmt.Sprintf("cd %s && if [ ! -d releases ]; then mkdir releases; fi", path)
 	if err := t.Run(cmd); err != nil {

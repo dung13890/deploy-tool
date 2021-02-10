@@ -7,3 +7,11 @@ repository:
   url: "git@github.com:dung13890/deploy-tool.git"
   branch: "master"
   # tag: "1.0.2"
+tasks:
+  - "echo 'xin chao'"
+shared:
+  folders:
+    - "vendor"
+    - "node_modules"
+  files:
+    - ".env"
