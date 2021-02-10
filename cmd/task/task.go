@@ -65,3 +65,14 @@ func (t *Task) Run(cmd string) error {
 
 	return nil
 }
+
+func (t *Task) CombinedOutput(cmd string) (out string, err error) {
+	t.cmd = cmd
+	o, err := t.remote.CombinedOutput(t.cmd)
+	out = string(o)
+	if err != nil {
+		return
+	}
+
+	return
+}
