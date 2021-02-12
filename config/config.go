@@ -7,8 +7,10 @@ import (
 )
 
 type Configuration struct {
-	Server     Host `yaml:server`
-	Repository Repo `yaml:repository`
+	Server     Host     `yaml:server`
+	Repository Repo     `yaml:repository`
+	Shared     Shared   `yaml:shared`
+	Tasks      []string `yaml:tasks`
 }
 
 type Host struct {
@@ -22,6 +24,11 @@ type Repo struct {
 	Url    string `yaml:"url"`
 	Branch string `yaml:"branch"`
 	Tag    string `yaml:"tag"`
+}
+
+type Shared struct {
+	Folders []string `yaml:"folders"`
+	Files   []string `yaml:"files"`
 }
 
 func (c *Configuration) ReadFile(path string) error {
