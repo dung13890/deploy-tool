@@ -22,6 +22,7 @@ type deploy struct {
 	repo       *cmdDep.Repo
 	shared     *cmdDep.Shared
 	tasks      *cmdDep.Tasks
+	cluster    *cmdDep.Cluster
 }
 
 func DeployInit() *cli.Command {
@@ -46,6 +47,7 @@ func DeployInit() *cli.Command {
 			d.loadRepo(ctx.String("tag"), ctx.String("branch"))
 			d.loadShared()
 			d.loadTasks()
+			d.loadCluster()
 			d.privateKey = ctx.String("identity")
 			d.exec()
 
@@ -59,8 +61,9 @@ func (d *deploy) exec() error {
 	d.mfuncs = map[string]interface{}{
 		"deploy:prepare": cmdDep.Prepare,
 		"deploy:fetch":   d.repo.Fetch,
-		"deploy:shared":  d.shared.Setup,
+		"deploy:shared":  d.shared.Run,
 		"deploy:tasks":   d.tasks.Run,
+		"deploy:cluster": d.cluster.Run,
 	}
 
 	var r remote.Remote = &remote.Server{}
@@ -81,6 +84,7 @@ func (d *deploy) exec() error {
 	d.commands(t, "deploy:fetch")
 	d.commands(t, "deploy:shared")
 	d.commands(t, "deploy:tasks")
+	d.commands(t, "deploy:cluster")
 
 	success := color.New(color.FgHiGreen, color.Bold).PrintlnFunc()
 	success("Successfully deployed!")
@@ -130,4 +134,14 @@ func (d *deploy) loadTasks() *cmdDep.Tasks {
 	d.tasks = cmdDep.NewTasks(d.config.Tasks)
 
 	return d.tasks
+}
+
+func (d *deploy) loadCluster() *cmdDep.Cluster {
+	d.cluster = cmdDep.NewCluster(
+		d.config.Cluster.Hosts,
+		d.config.Cluster.Rsync.Excludes,
+		d.config.Cluster.Cmds,
+	)
+
+	return d.cluster
 }

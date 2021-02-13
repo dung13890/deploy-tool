@@ -11,6 +11,7 @@ type Configuration struct {
 	Repository Repo     `yaml:repository`
 	Shared     Shared   `yaml:shared`
 	Tasks      []string `yaml:tasks`
+	Cluster    Cluster  `yaml:cluster`
 }
 
 type Host struct {
@@ -29,6 +30,16 @@ type Repo struct {
 type Shared struct {
 	Folders []string `yaml:"folders"`
 	Files   []string `yaml:"files"`
+}
+
+type Cluster struct {
+	Hosts []string `yaml:"hosts"`
+	Rsync Rsync    `yaml:"rsync"`
+	Cmds  []string `yaml:"cmds"`
+}
+
+type Rsync struct {
+	Excludes []string `yaml:"excludes"`
 }
 
 func (c *Configuration) ReadFile(path string) error {
