@@ -64,6 +64,7 @@ func (d *deploy) exec() error {
 		"deploy:shared":  d.shared.Run,
 		"deploy:tasks":   d.tasks.Run,
 		"deploy:cluster": d.cluster.Run,
+		"deploy:publish": cmdDep.Publish,
 	}
 
 	var r remote.Remote = &remote.Server{}
@@ -84,6 +85,7 @@ func (d *deploy) exec() error {
 	d.commands(t, "deploy:fetch")
 	d.commands(t, "deploy:shared")
 	d.commands(t, "deploy:tasks")
+	d.commands(t, "deploy:publish")
 	d.commands(t, "deploy:cluster")
 
 	success := color.New(color.FgHiGreen, color.Bold).PrintlnFunc()

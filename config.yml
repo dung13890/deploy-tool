@@ -17,7 +17,6 @@ tasks:
   - "echo 'xin chao'"
 cluster:
   hosts:
-    - "127.0.0.1"
   rsync:
     excludes:
       - ".env"
