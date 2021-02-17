@@ -67,7 +67,14 @@ func (d *deploy) exec() error {
 		"deploy:publish": cmdDep.Publish,
 	}
 
-	var r remote.Remote = &remote.Server{}
+	var r remote.Remote
+
+	if d.config.Server.Address == "127.0.0.1" || d.config.Server.Address == "localhost" {
+		r = &remote.Localhost{}
+	} else {
+		r = &remote.Server{}
+	}
+
 	defer r.Close()
 	r.Load(
 		d.config.Server.Address,

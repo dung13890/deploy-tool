@@ -1,5 +1,5 @@
 server:
-  address: "3.234.143.13"
+  address: "127.0.0.1"
   user: "ec2-user"
   port: 22
   dir: "newproject"
@@ -17,6 +17,7 @@ tasks:
   - "echo 'xin chao'"
 cluster:
   hosts:
+    # - "127.0.0.1"
   rsync:
     excludes:
       - ".env"

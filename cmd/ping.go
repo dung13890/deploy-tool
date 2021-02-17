@@ -43,7 +43,13 @@ func PingInit() *cli.Command {
 }
 
 func (p *ping) exec() error {
-	var r remote.Remote = &remote.Server{}
+	var r remote.Remote
+
+	if p.config.Server.Address == "127.0.0.1" || p.config.Server.Address == "localhost" {
+		r = &remote.Localhost{}
+	} else {
+		r = &remote.Server{}
+	}
 	defer r.Close()
 	r.Load(
 		p.config.Server.Address,
