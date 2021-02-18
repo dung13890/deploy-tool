@@ -8,7 +8,7 @@ import (
 )
 
 func Prepare(t *task.Task) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	cmd := ""
 	cmd = fmt.Sprintf("if [ ! -d %s ]; then mkdir -p %s; fi", path, path)
 	if err := t.Run(cmd); err != nil {
@@ -39,7 +39,7 @@ func Prepare(t *task.Task) error {
 }
 
 func symlink(t *task.Task) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	cmd := ""
 	cmd = fmt.Sprintf("cd %s && if [ -h release ]; then rm release; rm -rf $(readlink release); fi", path)
 	if err := t.Run(cmd); err != nil {
@@ -64,7 +64,7 @@ func symlink(t *task.Task) error {
 }
 
 func cleanup(t *task.Task) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	cmd := ""
 	cmd = fmt.Sprintf("cd %s/releases && ls -t -1 -d */", path)
 	// Will list only dirs in releases.

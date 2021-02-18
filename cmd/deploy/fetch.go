@@ -21,7 +21,7 @@ func NewRepo(url string, branch string, tag string) *Repo {
 }
 
 func (r *Repo) Fetch(t *task.Task) (err error) {
-	path := t.Dir()
+	path := t.GetDirectory()
 	releasePath := fmt.Sprintf("%s/release", path)
 	// Update code at release_path on host.
 	cmd, err := r.makeCmd(releasePath)

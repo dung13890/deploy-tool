@@ -56,6 +56,7 @@ func (p *ping) exec() error {
 		p.config.Server.User,
 		p.config.Server.Port,
 		p.config.Server.Dir,
+		p.config.Server.Project,
 	)
 	fmt.Println("Testing connection into servers:")
 	green := color.New(color.FgHiGreen).SprintFunc()
@@ -67,10 +68,11 @@ func (p *ping) exec() error {
 	sp.Start()
 	if err := r.Connect(p.privateKey); err != nil {
 		log.Fatalf("Error: %s", err)
-		return nil
 	}
 	t := task.New(r, p.log)
-	p.command(t)
+	if err := p.command(t); err != nil {
+		log.Fatalf("Error: %s", err)
+	}
 	sp.Stop()
 
 	return nil

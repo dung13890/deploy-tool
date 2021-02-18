@@ -20,7 +20,7 @@ func NewShared(folders []string, files []string) *Shared {
 }
 
 func (s *Shared) Run(t *task.Task) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	sharedPath := fmt.Sprintf("%s/shared", path)
 	releasePath := fmt.Sprintf("%s/release", path)
 

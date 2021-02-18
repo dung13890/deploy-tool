@@ -81,6 +81,7 @@ func (d *deploy) exec() error {
 		d.config.Server.User,
 		d.config.Server.Port,
 		d.config.Server.Dir,
+		d.config.Server.Project,
 	)
 	fmt.Printf("%s Executing task deploy:\n", r.Prefix())
 	if err := r.Connect(d.privateKey); err != nil {

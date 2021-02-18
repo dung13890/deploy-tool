@@ -46,8 +46,8 @@ func (t *Task) printLog() error {
 	return nil
 }
 
-func (t *Task) Dir() string {
-	return t.remote.Dir()
+func (t *Task) GetDirectory() string {
+	return t.remote.GetDirectory()
 }
 
 func (t *Task) Run(cmd string) error {
@@ -55,11 +55,14 @@ func (t *Task) Run(cmd string) error {
 	if t.debug {
 		t.cmd = "set -x;" + cmd
 	}
-	err := t.remote.Run(t.cmd)
+	if err := t.remote.Run(t.cmd); err != nil {
+		return err
+	}
 	if t.debug {
 		t.printLog()
 	}
-	if err != nil {
+
+	if err := t.remote.Wait(); err != nil {
 		return err
 	}
 
@@ -70,13 +73,6 @@ func (t *Task) CombinedOutput(cmd string) (out string, err error) {
 	t.cmd = cmd
 	o, err := t.remote.CombinedOutput(t.cmd)
 	out = string(o)
-	if err != nil {
-		return
-	}
-
-	if t.debug {
-		t.printLog()
-	}
 
 	return
 }

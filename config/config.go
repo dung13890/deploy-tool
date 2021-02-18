@@ -19,6 +19,7 @@ type Host struct {
 	User    string `yaml:"user"`
 	Port    int    `yaml:"port"`
 	Dir     string `yaml:"dir"`
+	Project string `yaml:"project"`
 }
 
 type Repo struct {

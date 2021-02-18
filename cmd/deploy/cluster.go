@@ -56,7 +56,7 @@ func (c *Cluster) Run(t *task.Task) error {
 }
 
 func (c *Cluster) cmdRsync(t *task.Task, cmdRsync string) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	// Use go routine for unique clients
 	hosts := utils.UniqueArr(c.hosts)
 	wg := sync.WaitGroup{}
@@ -83,7 +83,7 @@ func (c *Cluster) cmdRsync(t *task.Task, cmdRsync string) error {
 }
 
 func (c *Cluster) command(t *task.Task, cmd string) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	releasePath := fmt.Sprintf("%s/release", path)
 	// Use go routine for unique clients
 	hosts := utils.UniqueArr(c.hosts)
