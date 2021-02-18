@@ -56,11 +56,11 @@ func (t *Task) Run(cmd string) error {
 		t.cmd = "set -x;" + cmd
 	}
 	err := t.remote.Run(t.cmd)
-	if err != nil {
-		return err
-	}
 	if t.debug {
 		t.printLog()
+	}
+	if err != nil {
+		return err
 	}
 
 	return nil

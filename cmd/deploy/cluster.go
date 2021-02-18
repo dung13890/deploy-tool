@@ -41,7 +41,9 @@ func (c *Cluster) Run(t *task.Task) error {
 		cmdRsync += excludes
 	}
 	// Run Rsync
-	c.cmdRsync(t, cmdRsync)
+	if err := c.cmdRsync(t, cmdRsync); err != nil {
+		return err
+	}
 
 	// Run Command
 	for _, v := range c.cmds {
@@ -72,6 +74,10 @@ func (c *Cluster) cmdRsync(t *task.Task, cmdRsync string) error {
 	}
 	wg.Wait()
 	close(errCh)
+
+	for err := range errCh {
+		return err
+	}
 
 	return nil
 }
