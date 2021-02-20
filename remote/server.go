@@ -1,11 +1,11 @@
 package remote
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,22 +16,27 @@ type Server struct {
 	user       string
 	port       int
 	dir        string
+	project    string
 	conn       *ssh.Client
+	sess       *ssh.Session
 	connOpened bool
+	sessOpened bool
+	running    bool
 	stdin      io.WriteCloser
 	stdout     io.Reader
 	stderr     io.Reader
 }
 
-func (s *Server) Load(address string, user string, port int, dir string) {
+func (s *Server) Load(address string, user string, port int, dir string, project string) {
 	s.address = address
 	s.user = user
 	s.port = port
 	s.dir = dir
+	s.project = project
 }
 
-func (s *Server) Dir() string {
-	return fmt.Sprintf("/data/sites/%s", s.dir)
+func (s *Server) GetDirectory() string {
+	return filepath.Join(s.dir, s.project)
 }
 
 func (s *Server) Prefix() string {
@@ -40,8 +45,7 @@ func (s *Server) Prefix() string {
 
 func (s *Server) Connect(privateKey string) error {
 	if s.connOpened {
-		log.Fatal("Warning: Client already connected")
-		return nil
+		return errors.New("Warning: Client already connected")
 	}
 	addr := fmt.Sprintf("%s:%d", s.address, s.port)
 	replacePath, err := filepath.Abs(strings.Replace(privateKey, "~", os.Getenv("HOME"), 1))
@@ -73,8 +77,15 @@ func (s *Server) Connect(privateKey string) error {
 }
 
 func (s *Server) Run(cmd string) error {
+	if s.running {
+		return errors.New("Session already running")
+	}
+
+	if s.sessOpened {
+		return errors.New("Session already connected")
+	}
+
 	sess, err := s.conn.NewSession()
-	defer sess.Close()
 	if err != nil {
 		return err
 	}
@@ -101,11 +112,28 @@ func (s *Server) Run(cmd string) error {
 		return err
 	}
 
-	if err = sess.Run(cmd); err != nil {
+	if err = sess.Start(cmd); err != nil {
 		return err
 	}
 
+	s.sess = sess
+	s.sessOpened = true
+	s.running = true
+
 	return nil
+}
+
+func (s *Server) Wait() error {
+	if !s.running {
+		return errors.New("Trying to wait on stopped session")
+	}
+
+	err := s.sess.Wait()
+	s.sess.Close()
+	s.running = false
+	s.sessOpened = false
+
+	return err
 }
 
 func (s *Server) CombinedOutput(cmd string) (out []byte, err error) {
@@ -146,11 +174,15 @@ func (s *Server) StdErr() io.Reader {
 }
 
 func (s *Server) Close() error {
+	if s.sessOpened {
+		s.sess.Close()
+		s.sessOpened = false
+	}
 	if !s.connOpened {
-		log.Fatal("Warning: Trying to close the already closed connection")
-		return nil
+		return errors.New("Warning: Trying to close the already closed connection")
 	}
 	s.connOpened = false
+	s.running = false
 	err := s.conn.Close()
 
 	return err

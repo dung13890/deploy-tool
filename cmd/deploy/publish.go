@@ -6,7 +6,7 @@ import (
 )
 
 func Publish(t *task.Task) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	cmd := ""
 
 	// Atomic symlink does not supported.

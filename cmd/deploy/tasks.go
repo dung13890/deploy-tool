@@ -18,7 +18,7 @@ func NewTasks(list []string) *Tasks {
 }
 
 func (ts *Tasks) Run(t *task.Task) error {
-	path := t.Dir()
+	path := t.GetDirectory()
 	releasePath := fmt.Sprintf("%s/release", path)
 	cmd := ""
 

@@ -2,7 +2,8 @@ server:
   address: "127.0.0.1"
   user: "ec2-user"
   port: 22
-  dir: "newproject"
+  dir: "/data/sites"
+  project: "newproject"
 repository:
   url: "git@github.com:dung13890/deploy-tool.git"
   branch: "master"
