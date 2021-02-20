@@ -3,6 +3,7 @@ module github.com/dung13890/deploy-tool
 go 1.15
 
 require (
+	github.com/AlecAivazis/survey/v2 v2.2.7
 	github.com/briandowns/spinner v1.12.0
 	github.com/cheggaaa/pb/v3 v3.0.5 // indirect
 	github.com/fatih/color v1.10.0
