@@ -1,5 +1,12 @@
 # deploy-tool
 
+## Demo
+
+![](docs/images/deploy.gif?raw=true)
+
+*Note: [init](docs/images/init.gif?raw=true) | [ping](docs/images/ping.gif?raw=true)*
+
+
 ## Run with docker for development
 ```sh
 docker-compose up -d

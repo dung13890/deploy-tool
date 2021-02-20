@@ -25,7 +25,7 @@ type deploy struct {
 	cluster    *cmdDep.Cluster
 }
 
-func DeployInit() *cli.Command {
+func NewDeploy() *cli.Command {
 	return &cli.Command{
 		Name:    "deploy",
 		Aliases: []string{"d"},

@@ -6,18 +6,27 @@ import (
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
 	cli.AppHelpTemplate = config.AppHelpTemplate
 	cli.CommandHelpTemplate = config.CommandHelpTemplate
-	ping := cmd.PingInit()
-	deploy := cmd.DeployInit()
-	app := cli.NewApp()
-	app.EnableBashCompletion = true
-	app.Commands = []*cli.Command{
-		ping,
-		deploy,
+	ping := cmd.NewPing()
+	deploy := cmd.NewDeploy()
+	init := cmd.NewInit()
+
+	app := &cli.App{
+		Name:                 "doo",
+		Usage:                "Deployment for your project",
+		HelpName:             "doo",
+		Compiled:             time.Now(),
+		EnableBashCompletion: true,
+		Commands: []*cli.Command{
+			init,
+			ping,
+			deploy,
+		},
 	}
 	err := app.Run(os.Args)
 	if err != nil {

@@ -18,7 +18,7 @@ type ping struct {
 	log        bool
 }
 
-func PingInit() *cli.Command {
+func NewPing() *cli.Command {
 	return &cli.Command{
 		Name:    "ping",
 		Aliases: []string{"p"},
