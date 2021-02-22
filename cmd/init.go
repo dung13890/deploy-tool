@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/dung13890/deploy-tool/config"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -92,11 +91,11 @@ func (a *answers) createFile(filename string) (err error) {
 		return
 	}
 	// Parse template to template yml
-	t, err := template.New("index").Parse(config.SourceYaml)
+	t, err := template.ParseFiles(filepath.Join(dir, "templates", "config.tmpl"))
 	if err != nil {
 		return
 	}
-	t.Execute(f, a)
+	t.ExecuteTemplate(f, "config", a)
 
 	return nil
 }
