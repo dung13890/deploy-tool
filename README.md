@@ -6,6 +6,13 @@
 
 *Note: [init](docs/images/init.gif?raw=true) | [ping](docs/images/ping.gif?raw=true)*
 
+## Features
+- Deployment from local into remote
+- Deployment on remote
+- Run command for multiple remote
+- Rsync multiple cluster
+- Notify to chatwork, slack
+- UI for deployment
 
 ## Run with docker for development
 ```sh
