@@ -31,6 +31,10 @@ func (l *Localhost) GetDirectory() string {
 	return filepath.Join(l.dir, l.project)
 }
 
+func (l *Localhost) GetUser() string {
+	return l.user
+}
+
 func (l *Localhost) Prefix() string {
 	return fmt.Sprintf("[%s@localhost]", l.user)
 }

@@ -50,6 +50,10 @@ func (t *Task) GetDirectory() string {
 	return t.remote.GetDirectory()
 }
 
+func (t *Task) GetUser() string {
+	return t.remote.GetUser()
+}
+
 func (t *Task) Run(cmd string) error {
 	t.cmd = cmd
 	if t.debug {

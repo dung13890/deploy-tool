@@ -61,7 +61,7 @@ func (s *Shared) Run(t *task.Task) error {
 			return err
 		}
 		// Copy share folder into release.
-		cmd = fmt.Sprintf("cp %s/files/%s %s/%s", sharedPath, v, releasePath, v)
+		cmd = fmt.Sprintf("cp -rf %s/files/%s %s/%s", sharedPath, v, releasePath, v)
 		if err := t.Run(cmd); err != nil {
 			return err
 		}
