@@ -6,20 +6,22 @@ import (
 	"strings"
 )
 
-func Writeable(t *task.Task) error {
+func Writeable(t *task.Task) (err error) {
 	path := t.GetDirectory()
-	user := t.GetUser()
-	groupUser, err := getGroupUser(t)
-	if err != nil {
-		return err
+	user, group := t.GetUser()
+	if group == "" {
+		group, err = getGroupUser(t)
+		if err != nil {
+			return
+		}
 	}
 
-	cmd := fmt.Sprintf("sudo chown -L -R %s:%s %s", user, groupUser, path)
+	cmd := fmt.Sprintf("sudo chown -L -R %s:%s %s", user, group, path)
 	if err := t.Run(cmd); err != nil {
 		return err
 	}
 
-	return nil
+	return
 }
 
 func getGroupUser(t *task.Task) (string, error) {

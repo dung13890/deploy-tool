@@ -12,6 +12,7 @@ import (
 type Localhost struct {
 	cmd     *exec.Cmd
 	user    string
+	group   string
 	dir     string
 	project string
 	stdin   io.WriteCloser
@@ -20,19 +21,20 @@ type Localhost struct {
 	running bool
 }
 
-func (l *Localhost) Load(_ string, _ string, _ int, dir string, project string) {
+func (l *Localhost) Load(_ string, _ string, group string, _ int, dir string, project string) {
 	u, _ := user.Current()
 	l.user = u.Username
 	l.dir = dir
 	l.project = project
+	l.group = group
 }
 
 func (l *Localhost) GetDirectory() string {
 	return filepath.Join(l.dir, l.project)
 }
 
-func (l *Localhost) GetUser() string {
-	return l.user
+func (l *Localhost) GetUser() (string, string) {
+	return l.user, l.group
 }
 
 func (l *Localhost) Prefix() string {
