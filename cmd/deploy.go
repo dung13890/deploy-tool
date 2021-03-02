@@ -59,12 +59,13 @@ func NewDeploy() *cli.Command {
 func (d *deploy) exec() error {
 	// Init mfuncs
 	d.mfuncs = map[string]interface{}{
-		"deploy:prepare": cmdDep.Prepare,
-		"deploy:fetch":   d.repo.Fetch,
-		"deploy:shared":  d.shared.Run,
-		"deploy:tasks":   d.tasks.Run,
-		"deploy:cluster": d.cluster.Run,
-		"deploy:publish": cmdDep.Publish,
+		"deploy:prepare":   cmdDep.Prepare,
+		"deploy:fetch":     d.repo.Fetch,
+		"deploy:shared":    d.shared.Run,
+		"deploy:tasks":     d.tasks.Run,
+		"deploy:cluster":   d.cluster.Run,
+		"deploy:writeable": cmdDep.Writeable,
+		"deploy:publish":   cmdDep.Publish,
 	}
 
 	var r remote.Remote
@@ -93,6 +94,7 @@ func (d *deploy) exec() error {
 	d.commands(t, "deploy:fetch")
 	d.commands(t, "deploy:shared")
 	d.commands(t, "deploy:tasks")
+	d.commands(t, "deploy:writeable")
 	d.commands(t, "deploy:publish")
 	d.commands(t, "deploy:cluster")
 
