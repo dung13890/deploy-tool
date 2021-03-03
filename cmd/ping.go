@@ -54,6 +54,7 @@ func (p *ping) exec() error {
 	r.Load(
 		p.config.Server.Address,
 		p.config.Server.User,
+		p.config.Server.Group,
 		p.config.Server.Port,
 		p.config.Server.Dir,
 		p.config.Server.Project,
@@ -69,7 +70,7 @@ func (p *ping) exec() error {
 	if err := r.Connect(p.privateKey); err != nil {
 		log.Fatalf("Error: %s", err)
 	}
-	t := task.New(r, p.log)
+	t := task.NewTask(r, p.log)
 	if err := p.command(t); err != nil {
 		log.Fatalf("Error: %s", err)
 	}

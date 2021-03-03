@@ -23,6 +23,8 @@ type deploy struct {
 	shared     *cmdDep.Shared
 	tasks      *cmdDep.Tasks
 	cluster    *cmdDep.Cluster
+	notify     *task.Notify
+	feature    string
 }
 
 func NewDeploy() *cli.Command {
@@ -48,6 +50,7 @@ func NewDeploy() *cli.Command {
 			d.loadShared()
 			d.loadTasks()
 			d.loadCluster()
+			d.loadNotify()
 			d.privateKey = ctx.String("identity")
 			d.exec()
 
@@ -80,6 +83,7 @@ func (d *deploy) exec() error {
 	r.Load(
 		d.config.Server.Address,
 		d.config.Server.User,
+		d.config.Server.Group,
 		d.config.Server.Port,
 		d.config.Server.Dir,
 		d.config.Server.Project,
@@ -88,7 +92,7 @@ func (d *deploy) exec() error {
 	if err := r.Connect(d.privateKey); err != nil {
 		log.Fatalf("Error: %s", err)
 	}
-	t := task.New(r, d.log)
+	t := task.NewTask(r, d.log)
 	// Run Commands for deploy
 	d.commands(t, "deploy:prepare")
 	d.commands(t, "deploy:fetch")
@@ -100,6 +104,7 @@ func (d *deploy) exec() error {
 
 	success := color.New(color.FgHiGreen, color.Bold).PrintlnFunc()
 	success("Successfully deployed!")
+	d.notify.Push("SUCCESS!")
 
 	return nil
 }
@@ -113,6 +118,7 @@ func (d *deploy) commands(t *task.Task, cmds string) error {
 	sp.Start()
 	out, _ := utils.Call(d.mfuncs, cmds, t)
 	if !out[0].IsNil() {
+		d.notify.Push("FAILED!")
 		log.Fatalf("Error: %v", out[0].Interface())
 	}
 	sp.Stop()
@@ -121,14 +127,22 @@ func (d *deploy) commands(t *task.Task, cmds string) error {
 }
 
 func (d *deploy) loadRepo(tag string, branch string) *cmdDep.Repo {
+	b := d.config.Repository.Branch
+	if branch != "" {
+		b = branch
+	}
+
 	t := d.config.Repository.Tag
 	if tag != "" {
 		t = tag
 	}
 
-	b := d.config.Repository.Branch
-	if branch != "" {
-		b = branch
+	if b != "" {
+		d.feature = fmt.Sprintf("Branch: %s", b)
+	}
+
+	if t != "" {
+		d.feature = fmt.Sprintf("Tag: %s", t)
 	}
 
 	d.repo = cmdDep.NewRepo(d.config.Repository.Url, b, t)
@@ -156,4 +170,16 @@ func (d *deploy) loadCluster() *cmdDep.Cluster {
 	)
 
 	return d.cluster
+}
+
+func (d *deploy) loadNotify() *task.Notify {
+	d.notify = task.NewNotify(
+		d.config.Server.Address,
+		d.config.Server.Project,
+		d.config.Notify.Token,
+		d.config.Notify.Room,
+		d.feature,
+	)
+
+	return d.notify
 }

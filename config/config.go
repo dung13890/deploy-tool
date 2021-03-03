@@ -12,11 +12,13 @@ type Configuration struct {
 	Shared     Shared   `yaml:shared`
 	Tasks      []string `yaml:tasks`
 	Cluster    Cluster  `yaml:cluster`
+	Notify     Notify   `yaml:notify`
 }
 
 type Host struct {
 	Address string `yaml:"address"`
 	User    string `yaml:"user"`
+	Group   string `yaml:"group"`
 	Port    int    `yaml:"port"`
 	Dir     string `yaml:"dir"`
 	Project string `yaml:"project"`
@@ -41,6 +43,11 @@ type Cluster struct {
 
 type Rsync struct {
 	Excludes []string `yaml:"excludes"`
+}
+
+type Notify struct {
+	Token string `yaml:"token"`
+	Room  string `yaml:"room"`
 }
 
 func (c *Configuration) ReadFile(path string) error {

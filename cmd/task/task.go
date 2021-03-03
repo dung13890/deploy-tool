@@ -14,7 +14,7 @@ type Task struct {
 	cmd    string
 }
 
-func New(r remote.Remote, d bool) *Task {
+func NewTask(r remote.Remote, d bool) *Task {
 	return &Task{
 		remote: r,
 		debug:  d,
@@ -50,7 +50,7 @@ func (t *Task) GetDirectory() string {
 	return t.remote.GetDirectory()
 }
 
-func (t *Task) GetUser() string {
+func (t *Task) GetUser() (string, string) {
 	return t.remote.GetUser()
 }
 

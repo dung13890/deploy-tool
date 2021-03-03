@@ -3,6 +3,7 @@ package config
 var SourceYaml = `server:
   address: "{{ .Ip }}"
   user: "ec2-user"
+  # group: "www-data"
   port: 22
   dir: "/data/sites"
   project: "{{ .Project }}"
@@ -27,4 +28,7 @@ cluster:
       - "*.log"
   cmds:
     - "uname -a"
+notify:
+  token: ""
+  room: ""
 `

@@ -14,6 +14,7 @@ import (
 type Server struct {
 	address    string
 	user       string
+	group      string
 	port       int
 	dir        string
 	project    string
@@ -27,9 +28,10 @@ type Server struct {
 	stderr     io.Reader
 }
 
-func (s *Server) Load(address string, user string, port int, dir string, project string) {
+func (s *Server) Load(address string, user string, group string, port int, dir string, project string) {
 	s.address = address
 	s.user = user
+	s.group = group
 	s.port = port
 	s.dir = dir
 	s.project = project
@@ -39,8 +41,8 @@ func (s *Server) GetDirectory() string {
 	return filepath.Join(s.dir, s.project)
 }
 
-func (s *Server) GetUser() string {
-	return s.user
+func (s *Server) GetUser() (string, string) {
+	return s.user, s.group
 }
 
 func (s *Server) Prefix() string {
