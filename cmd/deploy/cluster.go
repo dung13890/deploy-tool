@@ -34,11 +34,11 @@ func (c *Cluster) Run(t *task.Task) error {
 	// Make command rsync with excludes
 	cmdRsync := "rsync -ahv --delete --omit-dir-times"
 	if len(c.rsync.excludes) > 0 {
-		excludes := " --excludes='*/releases/*'"
-		for _, v := range utils.UniqueArr(c.rsync.excludes) {
-			excludes += fmt.Sprintf(" --excludes='%s'", v)
+		exclude := ""
+		for _, v := range c.rsync.excludes {
+			exclude += fmt.Sprintf(" --exclude='%s'", v)
 		}
-		cmdRsync += excludes
+		cmdRsync += exclude
 	}
 	// Run Rsync
 	if err := c.cmdRsync(t, cmdRsync); err != nil {
@@ -65,7 +65,7 @@ func (c *Cluster) cmdRsync(t *task.Task, cmdRsync string) error {
 		wg.Add(1)
 		go func(t *task.Task, host string, path string, cmd string) {
 			defer wg.Done()
-			cmd = fmt.Sprintf("%s %s %s:%s", cmd, path, host, path)
+			cmd = fmt.Sprintf("%s %s/ %s:%s/", cmd, path, host, path)
 			if err := t.Run(cmd); err != nil {
 				errCh <- err
 			}
@@ -84,7 +84,7 @@ func (c *Cluster) cmdRsync(t *task.Task, cmdRsync string) error {
 
 func (c *Cluster) command(t *task.Task, cmd string) error {
 	path := t.GetDirectory()
-	releasePath := fmt.Sprintf("%s/release", path)
+	currentPath := fmt.Sprintf("%s/current", path)
 	// Use go routine for unique clients
 	hosts := utils.UniqueArr(c.hosts)
 	wg := sync.WaitGroup{}
@@ -94,7 +94,7 @@ func (c *Cluster) command(t *task.Task, cmd string) error {
 		wg.Add(1)
 		go func(t *task.Task, host string, path string, cmd string) {
 			defer wg.Done()
-			cmd = fmt.Sprintf("ssh %s cd %s && %s", host, releasePath, cmd)
+			cmd = fmt.Sprintf("ssh %s 'cd %s && %s'", host, currentPath, cmd)
 			if err := t.Run(cmd); err != nil {
 				errCh <- err
 			}

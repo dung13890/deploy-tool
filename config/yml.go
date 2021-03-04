@@ -31,4 +31,5 @@ cluster:
 notify:
   token: ""
   room: ""
+  to: ""
 `
