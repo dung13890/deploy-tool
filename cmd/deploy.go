@@ -178,6 +178,7 @@ func (d *deploy) loadNotify() *task.Notify {
 		d.config.Server.Project,
 		d.config.Notify.Token,
 		d.config.Notify.Room,
+		d.config.Notify.To,
 		d.feature,
 	)
 

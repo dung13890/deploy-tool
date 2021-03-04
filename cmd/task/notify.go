@@ -12,15 +12,17 @@ type Notify struct {
 	project string
 	token   string
 	room    string
+	to      string
 	feature string
 }
 
-func NewNotify(address string, project string, token string, room string, feature string) *Notify {
+func NewNotify(address string, project string, token string, room string, to string, feature string) *Notify {
 	return &Notify{
 		address: address,
 		project: project,
 		token:   token,
 		room:    room,
+		to:      to,
 		feature: feature,
 	}
 }
@@ -36,9 +38,15 @@ func (n *Notify) Push(status string) error {
 func (n *Notify) doSendChatwork(status string) (resq []byte, err error) {
 	var body string
 
+	to := n.to
+	if to == "" {
+		to = "[toall]"
+	}
+
 	// Make message
 	body = fmt.Sprintf(
-		"[toall]\n[info][title]Deploy (%s) into Server (%s)[/title]Build Status: %s\n%s[/info]",
+		"%s\n[info][title]Deploy (%s) into Server (%s)[/title]Build Status: %s\n%s[/info]",
+		to,
 		n.project,
 		n.address,
 		status,

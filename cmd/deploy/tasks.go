@@ -3,7 +3,6 @@ package deploy
 import (
 	"fmt"
 	"github.com/dung13890/deploy-tool/cmd/task"
-	"github.com/dung13890/deploy-tool/utils"
 	"strings"
 )
 
@@ -23,7 +22,7 @@ func (ts *Tasks) Run(t *task.Task) error {
 	cmd := ""
 
 	// Loop list unique tasks
-	for _, v := range utils.UniqueArr(ts.list) {
+	for _, v := range ts.list {
 		v = strings.TrimSpace(v)
 		cmd = fmt.Sprintf("cd %s && %s", releasePath, v)
 		if err := t.Run(cmd); err != nil {

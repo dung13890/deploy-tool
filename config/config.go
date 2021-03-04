@@ -48,6 +48,7 @@ type Rsync struct {
 type Notify struct {
 	Token string `yaml:"token"`
 	Room  string `yaml:"room"`
+	To    string `yaml:"to"`
 }
 
 func (c *Configuration) ReadFile(path string) error {
