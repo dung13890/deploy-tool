@@ -1,5 +1,23 @@
 # deploy-tool
 
+# Install deploy tool
+
+```sh
+curl -sf https://gobinaries.com/dung13890/deploy-tool/doo | sh
+```
+
+install doo with version
+
+```sh
+curl -sf https://gobinaries.com/dung13890/deploy-tool/doo@1.0.1 | sh
+```
+
+Run doo
+
+```sh
+doo init
+```
+
 ## Demo
 
 ![](docs/images/deploy.gif?raw=true)
@@ -13,6 +31,8 @@
 - Rsync multiple cluster
 - Notify to chatwork, slack
 - UI for deployment
+
+# For Developer
 
 ## Run with docker for development
 ```sh
@@ -30,6 +50,6 @@ go mod vendor
 ## Setup and running for development
 
 ```sh
-# file config.yml
-go run main.go
+# Init file config.yml
+go run doo/main.go init
 ```
