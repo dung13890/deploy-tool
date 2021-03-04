@@ -3,13 +3,15 @@
 # Install deploy tool
 
 ```sh
-curl -sf https://gobinaries.com/dung13890/deploy-tool/doo | sh
+curl -sf https://gobinaries.com/dung13890/deploy-tool | PREFIX=/tmp sh
+sudo mv /tmp/deploy-tool /usr/local/bin/doo
 ```
 
 install doo with version
 
 ```sh
-curl -sf https://gobinaries.com/dung13890/deploy-tool/doo@1.0.1 | sh
+curl -sf https://gobinaries.com/dung13890/deploy-tool@1.0.1 | PREFIX=/tmp sh
+sudo mv /tmp/deploy-tool /usr/local/bin/doo
 ```
 
 Run doo
@@ -51,5 +53,5 @@ go mod vendor
 
 ```sh
 # Init file config.yml
-go run doo/main.go init
+go run main.go init
 ```
