@@ -9,6 +9,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -75,13 +76,55 @@ func (p *ping) exec() error {
 		log.Fatalf("Error: %s", err)
 	}
 	sp.Stop()
+	// Testing on cluster
+	if len(p.config.Cluster.Hosts) > 0 {
+		fmt.Println("Testing connection into cluster:")
+		if err := p.cluster(t); err != nil {
+			log.Fatalf("Error: %s", err)
+		}
+	}
 
 	return nil
 }
 
 func (p *ping) command(t *task.Task) error {
-	if err := t.Run("uname -a"); err != nil {
-		return err
+	return t.Run("uname -a")
+}
+
+func (p *ping) cluster(t *task.Task) error {
+	wg := sync.WaitGroup{}
+	rs := make(chan string, len(p.config.Cluster.Hosts))
+	er := make(chan string, len(p.config.Cluster.Hosts))
+	green := color.New(color.FgHiGreen).SprintFunc()
+	red := color.New(color.FgHiRed).SprintFunc()
+
+	for _, item := range p.config.Cluster.Hosts {
+		wg.Add(1)
+		go func(w *sync.WaitGroup, host string) {
+			defer w.Done()
+			cmd := fmt.Sprintf("ssh %s 'uname -a'", host)
+			if err := t.Run(cmd); err != nil {
+				// Push channel when exists error
+				er <- fmt.Sprintf("%s [%s]: Failed!", red("✘"), host)
+			}
+			// Push channel when connection success
+			rs <- fmt.Sprintf("%s [%s]: OK!", green("✔"), host)
+		}(&wg, item)
 	}
+
+	wg.Wait()
+	for i := 0; i < len(p.config.Cluster.Hosts); i++ {
+		select {
+		case results := <-rs:
+			fmt.Println(results)
+		case errors := <-er:
+			fmt.Println(errors)
+		default:
+			fmt.Println()
+		}
+	}
+	close(rs)
+	close(er)
+
 	return nil
 }
