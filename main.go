@@ -15,6 +15,7 @@ func main() {
 	ping := cmd.NewPing()
 	deploy := cmd.NewDeploy()
 	init := cmd.NewInit()
+	git := cmd.NewGit()
 
 	app := &cli.App{
 		Name:                 "doo",
@@ -26,6 +27,7 @@ func main() {
 			init,
 			ping,
 			deploy,
+			git,
 		},
 	}
 	err := app.Run(os.Args)
