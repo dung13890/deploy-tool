@@ -5,6 +5,7 @@ import (
 	"github.com/dung13890/deploy-tool/config"
 	"github.com/dung13890/deploy-tool/remote"
 	"github.com/urfave/cli/v2"
+	"io"
 	"log"
 )
 
@@ -46,6 +47,15 @@ func (s *shell) exec() error {
 	defer r.Close()
 
 	fmt.Println("Running shell into multiple servers:")
-
+	var writers []io.Writer
+	var input io.Reader
+	go func() {
+		writer := io.MultiWriter(writers...)
+		_, err := io.Copy(writer, input)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(input)
+	}()
 	return nil
 }
