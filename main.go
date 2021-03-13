@@ -12,22 +12,18 @@ import (
 func main() {
 	cli.AppHelpTemplate = config.AppHelpTemplate
 	cli.CommandHelpTemplate = config.CommandHelpTemplate
-	ping := cmd.NewPing()
-	deploy := cmd.NewDeploy()
 	init := cmd.NewInit()
-	shell := cmd.NewShell()
+	openssl := cmd.NewOpenssl()
 
 	app := &cli.App{
 		Name:                 "doo",
-		Usage:                "Deployment for your project",
+		Usage:                "Check version the SSL/TLS On Server",
 		HelpName:             "doo",
 		Compiled:             time.Now(),
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
 			init,
-			ping,
-			deploy,
-			shell,
+			openssl,
 		},
 	}
 	err := app.Run(os.Args)
