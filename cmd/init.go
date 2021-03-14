@@ -45,15 +45,8 @@ func (a *answers) exec() error {
 		{
 			Name: "ip",
 			Prompt: &survey.Input{
-				Message: "Please setup IP Remote:",
+				Message: "Please setup IP Server:",
 				Default: "127.0.0.1",
-			},
-		},
-		{
-			Name: "repo",
-			Prompt: &survey.Input{
-				Message: "Please setup url repository:",
-				Default: "git@github.com:repo/example.git",
 			},
 		},
 	}
