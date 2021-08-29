@@ -46,9 +46,10 @@ type Rsync struct {
 }
 
 type Notify struct {
-	Token string `yaml:"token"`
-	Room  string `yaml:"room"`
-	To    string `yaml:"to"`
+	Token        string `yaml:"token"`
+	Room         string `yaml:"room"`
+	To           string `yaml:"to"`
+	SlackWebhook string `yaml:"slackWebhook"`
 }
 
 func (c *Configuration) ReadFile(path string) error {
