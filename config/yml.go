@@ -32,4 +32,5 @@ notify:
   token: ""
   room: ""
   to: ""
+  slackWebhook: ""
 `

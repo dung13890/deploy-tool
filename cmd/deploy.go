@@ -179,6 +179,7 @@ func (d *deploy) loadNotify() *task.Notify {
 		d.config.Notify.Token,
 		d.config.Notify.Room,
 		d.config.Notify.To,
+		d.config.Notify.SlackWebhook,
 		d.feature,
 	)
 

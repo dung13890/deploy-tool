@@ -1,6 +1,7 @@
 package task
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -8,22 +9,24 @@ import (
 )
 
 type Notify struct {
-	address string
-	project string
-	token   string
-	room    string
-	to      string
-	feature string
+	address      string
+	project      string
+	token        string
+	room         string
+	to           string
+	slackWebhook string
+	feature      string
 }
 
-func NewNotify(address string, project string, token string, room string, to string, feature string) *Notify {
+func NewNotify(address string, project string, token string, room string, to string, slackWebhook string, feature string) *Notify {
 	return &Notify{
-		address: address,
-		project: project,
-		token:   token,
-		room:    room,
-		to:      to,
-		feature: feature,
+		address:      address,
+		project:      project,
+		token:        token,
+		room:         room,
+		to:           to,
+		slackWebhook: slackWebhook,
+		feature:      feature,
 	}
 }
 
@@ -31,8 +34,38 @@ func (n *Notify) Push(status string) error {
 	if n.token != "" {
 		n.doSendChatwork(status)
 	}
+	if n.slackWebhook != "" {
+		n.doSendSlack(status)
+	}
 
 	return nil
+}
+
+func (n *Notify) doSendSlack(status string) (resq []byte, err error) {
+
+	// Make message
+	msg := []byte(fmt.Sprintf("{'text': '*Deploy (%s) into Server (%s)*```Build Status: %s\n%s```'}",
+		n.project,
+		n.address,
+		status,
+		n.feature,
+	))
+
+	// Make request
+	client := &http.Client{}
+
+	req, err := http.NewRequest("POST", n.slackWebhook, bytes.NewBuffer(msg))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	// Execute request
+	res, err := client.Do(req)
+	defer res.Body.Close()
+
+	resq, _ = ioutil.ReadAll(res.Body)
+
+	return
 }
 
 func (n *Notify) doSendChatwork(status string) (resq []byte, err error) {
