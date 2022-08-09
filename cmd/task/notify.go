@@ -27,9 +27,9 @@ func NewNotify(
 	room string,
 	to string,
 	slackWebhook string,
-	feature string,
 	otherUrlWebhook string,
 	otherChannel string,
+	feature string,
 ) *Notify {
 	return &Notify{
 		address:         address,
@@ -38,9 +38,9 @@ func NewNotify(
 		room:            room,
 		to:              to,
 		slackWebhook:    slackWebhook,
-		feature:         feature,
 		otherUrlWebhook: otherUrlWebhook,
 		otherChannel:    otherChannel,
+		feature:         feature,
 	}
 }
 
@@ -87,22 +87,27 @@ func (n *Notify) doSendSlack(status string) (resq []byte, err error) {
 
 func (n *Notify) doSendOther(status string) (resq []byte, err error) {
 	// Make message
-	msg := fmt.Sprintf("{'text': '*Deploy (%s) into Server (%s)*```Build Status: %s\n%s```'}",
+	title := fmt.Sprintf(`{"type": "header", "text": {"type": "plain_text", "text": "Deploy (%s) into Server (%s)"}}`,
 		n.project,
 		n.address,
+	)
+
+	block := fmt.Sprintf(`{"type": "section", "text": {"type": "mrkdwn", "text": "Build Status: %s\n%s"}}`,
 		status,
 		n.feature,
 	)
 
-	postBody := []byte(fmt.Sprintf("{'service': 'slack', 'channel': %s, 'receivers': 'here', 'message': %s}",
+	postBody := []byte(fmt.Sprintf(`{"service": "slack", "channel": "%s", "receivers": "here", "message": "%s", "blocks": [%s, %s]}`,
 		n.otherChannel,
-		msg,
+		status,
+		title,
+		block,
 	))
 
 	// Make request
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", n.otherUrlWebhook, bytes.NewBuffer(msg))
+	req, err := http.NewRequest("POST", n.otherUrlWebhook, bytes.NewBuffer(postBody))
 	if err != nil {
 		return
 	}
