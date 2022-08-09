@@ -180,6 +180,8 @@ func (d *deploy) loadNotify() *task.Notify {
 		d.config.Notify.Room,
 		d.config.Notify.To,
 		d.config.Notify.SlackWebhook,
+		d.config.Notify.OtherUrlWebhook,
+		d.config.Notify.OtherChannel,
 		d.feature,
 	)
 
