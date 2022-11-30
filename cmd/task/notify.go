@@ -92,14 +92,16 @@ func (n *Notify) doSendOther(status string) (resq []byte, err error) {
 		n.address,
 	)
 
-	block := fmt.Sprintf(`{"type": "section", "text": {"type": "mrkdwn", "text": "Build Status: %s\n%s"}}`,
+	block := fmt.Sprintf(`{"type": "section", "text": {"type": "mrkdwn", "text": "\n>Build Status: %s\n>%s  :git:"}}`,
 		status,
 		n.feature,
 	)
+	here := fmt.Sprintf(`{"type": "section","fields": [{"type": "mrkdwn","text": "@here"}]}`)
 
-	postBody := []byte(fmt.Sprintf(`{"service": "slack", "channel": "%s", "receivers": "here", "message": "%s", "blocks": [%s, %s]}`,
+	postBody := []byte(fmt.Sprintf(`{"service": "slack", "channel": "%s", "receivers": "here", "message": "%s", "blocks": [%s,%s,%s]}`,
 		n.otherChannel,
 		status,
+		here,
 		title,
 		block,
 	))
