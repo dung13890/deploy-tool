@@ -104,7 +104,7 @@ func (d *deploy) exec() error {
 
 	success := color.New(color.FgHiGreen, color.Bold).PrintlnFunc()
 	success("Successfully deployed!")
-	d.notify.Push("SUCCESS!")
+	d.notify.Push("SUCCESS!  :green-check-mark:")
 
 	return nil
 }
@@ -118,7 +118,7 @@ func (d *deploy) commands(t *task.Task, cmds string) error {
 	sp.Start()
 	out, _ := utils.Call(d.mfuncs, cmds, t)
 	if !out[0].IsNil() {
-		d.notify.Push("FAILED!")
+		d.notify.Push("FAILED!  :error:")
 		log.Fatalf("Error: %v", out[0].Interface())
 	}
 	sp.Stop()
